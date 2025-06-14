@@ -142,37 +142,26 @@ export const useWatch = (animeId, initialEpisodeId) => {
         }
         const savedServerName = localStorage.getItem("server_name");
         const savedServerType = localStorage.getItem("server_type");
-        let initialServer;
-        initialServer = data.find(
-          (server) =>
-            server.serverName === savedServerName &&
-            server.type === savedServerType
-        );
-        if (!initialServer) {
-          initialServer = data.find(
-            (server) =>
-              server.serverName === savedServerName &&
-              server.type !== savedServerType
-          );
-        }
-        if (!initialServer) {
-          initialServer =
-            data.find(
-              (server) =>
-                server.type === savedServerType && server.serverName === "HD-1"
-            ) ||
-            data.find(
-              (server) =>
-                server.type === savedServerType && server.serverName === "HD-2"
-            ) ||
-            data.find(
-              (server) =>
-                server.type === savedServerType && server.serverName === "HD-3"
-            );
-        }
-        if (!initialServer) {
-          initialServer = filteredServers[0];
-        }
+        let initialServer =
+          data.find(
+            (s) =>
+              s.serverName === savedServerName && s.type === savedServerType
+          ) ||
+          data.find((s) => s.serverName === savedServerName) ||
+          data.find((s) => s.type === savedServerType) ||
+          data.find(
+            (s) => s.serverName === "HD-1" && s.type === savedServerType
+          ) ||
+          data.find(
+            (s) => s.serverName === "HD-2" && s.type === savedServerType
+          ) ||
+          data.find(
+            (s) => s.serverName === "HD-3" && s.type === savedServerType
+          ) ||
+          data.find(
+            (s) => s.serverName === "HD-4" && s.type === savedServerType
+          ) ||
+          filteredServers[0];
         setServers(filteredServers);
         setActiveServerType(initialServer?.type);
         setActiveServerName(initialServer?.serverName);
