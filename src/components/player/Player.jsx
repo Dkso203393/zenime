@@ -61,6 +61,7 @@ export default function Player({
   streamInfo,
 }) {
   const artRef = useRef(null);
+  const leftAtRef = useRef(0); 
   const proxy = import.meta.env.VITE_PROXY_URL;
   const m3u8proxy = import.meta.env.VITE_M3U8_PROXY_URL?.split(",") || [];
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(
@@ -115,14 +116,12 @@ export default function Player({
       video.addEventListener("timeupdate", () => {
         const currentTime = Math.round(video.currentTime);
         const duration = Math.round(video.duration);
-        if (duration > 0) {
-          if (currentTime >= duration) {
+        if (duration > 0 && currentTime >= duration) {
             art.pause();
             if (currentEpisodeIndex < episodes?.length - 1 && autoNext) {
               playNext(
                 episodes[currentEpisodeIndex + 1].id.match(/ep=(\d+)/)?.[1]
               );
-            }
           }
         }
       });
@@ -131,14 +130,12 @@ export default function Player({
       video.addEventListener("timeupdate", () => {
         const currentTime = Math.round(video.currentTime);
         const duration = Math.round(video.duration);
-        if (duration > 0) {
-          if (currentTime >= duration) {
+        if (duration > 0 && currentTime >= duration) {
             art.pause();
             if (currentEpisodeIndex < episodes?.length - 1 && autoNext) {
               playNext(
                 episodes[currentEpisodeIndex + 1].id.match(/ep=(\d+)/)?.[1]
               );
-            }
           }
         }
       });
@@ -257,15 +254,11 @@ export default function Player({
       ],
       subtitle: {
         style: {
+          color: "#fff",
           "font-weight": "400",
-          height: "fit-content",
-          minWidth: "fit-content",
-          marginInline: "auto",
-          "margin-top": "auto",
-          "margin-bottom": "2rem",
           left: "50%",
           transform: "translateX(-50%)",
-          color: "#fff",
+          "margin-bottom": "2rem",
         },
         escape: false,
       },
@@ -293,20 +286,12 @@ export default function Player({
             transform: "translateX(-50%)",
           },
           disable: !Artplayer.utils.isMobile,
-          click: function () {
-            art.toggle();
-          },
+          click: () => art.toggle(),
         },
         {
           name: "rewind",
           html: "",
-          style: {
-            position: "absolute",
-            left: 0,
-            top: 0,
-            width: "40%",
-            height: "100%",
-          },
+          style: { position: "absolute", left: 0, top: 0, width: "40%", height: "100%" },
           disable: !Artplayer.utils.isMobile,
           click: () => {
             art.controls.show = !art.controls.show;
@@ -315,13 +300,7 @@ export default function Player({
         {
           name: "forward",
           html: "",
-          style: {
-            position: "absolute",
-            right: 0,
-            top: 0,
-            width: "40%",
-            height: "100%",
-          },
+          style: { position: "absolute", right: 0, top: 0, width: "40%", height: "100%" },
           disable: !Artplayer.utils.isMobile,
           click: () => {
             art.controls.show = !art.controls.show;
@@ -384,117 +363,91 @@ export default function Player({
         fullscreenOn: fullScreenOnIcon,
         fullscreenOff: fullScreenOffIcon,
       },
-      customType: {
-        m3u8: playM3u8,
-      },
+      customType: { m3u8: playM3u8 },
     });
 
-    art.on("resize", () => {
-      art.subtitle.style({
-        fontSize:
-          (art.width > 500 ? art.width * 0.02 : art.width * 0.03) + "px",
-      });
-    });
     art.on("ready", () => {
-      const defaultSubtitle = subtitles?.find(
-        (sub) => sub.label.toLowerCase() === "english"
-      );
+      const continueWatchingList = JSON.parse(localStorage.getItem("continueWatching")) || [];
+      const currentEntry = continueWatchingList.find((item) => item.episodeId === episodeId);
+      if (currentEntry?.leftAt) art.currentTime = currentEntry.leftAt;
+
+      art.on("video:timeupdate", () => {
+        leftAtRef.current = Math.floor(art.currentTime);
+      });
+
+      setTimeout(() => {
+        art.layers[website_name].style.opacity = 0;
+      }, 2000);
+
+      const defaultSubtitle = subtitles?.find((sub) => sub.label.toLowerCase() === "english");
       if (defaultSubtitle) {
         art.subtitle.switch(defaultSubtitle.file, {
           name: defaultSubtitle.label,
           default: true,
         });
       }
-      const $rewind = art.layers["rewind"];
-      const $forward = art.layers["forward"];
-      Artplayer.utils.isMobile &&
-        art.proxy($rewind, "dblclick", () => {
-          art.currentTime = Math.max(0, art.currentTime - 10);
-          art.layers["backwardIcon"].style.opacity = 1;
-          setTimeout(() => {
-            art.layers["backwardIcon"].style.opacity = 0;
-          }, 300);
-        });
-      Artplayer.utils.isMobile &&
-        art.proxy($forward, "dblclick", () => {
-          art.currentTime = Math.max(0, art.currentTime + 10);
-          art.layers["forwardIcon"].style.opacity = 1;
-          setTimeout(() => {
-            art.layers["forwardIcon"].style.opacity = 0;
-          }, 300);
-        });
-      setTimeout(() => {
-        art.layers[website_name].style.opacity = 0;
-      }, 2000);
-      const ranges = [
-        ...(intro.start != null && intro.end != null
-          ? [[intro.start + 1, intro.end - 1]]
-          : []),
-        ...(outro.start != null && outro.end != null
-          ? [[outro.start + 1, outro.end]]
-          : []),
+
+      const skipRanges = [
+        ...(intro.start != null && intro.end != null ? [[intro.start + 1, intro.end - 1]] : []),
+        ...(outro.start != null && outro.end != null ? [[outro.start + 1, outro.end]] : []),
       ];
-      {
-        autoSkipIntro && art.plugins.add(autoSkip(ranges));
-      }
-      document.addEventListener("keydown", (event) =>
-        handleKeydown(event, art)
-      );
+      autoSkipIntro && art.plugins.add(autoSkip(skipRanges));
+
+      document.addEventListener("keydown", (event) => handleKeydown(event, art));
+
       art.subtitle.style({
-        fontSize:
-          (art.width > 500 ? art.width * 0.02 : art.width * 0.03) + "px",
+        fontSize: (art.width > 500 ? art.width * 0.02 : art.width * 0.03) + "px",
       });
-      thumbnail &&
+
+      if (thumbnail) {
         art.plugins.add(
           artplayerPluginVttThumbnail({
             vtt: `${proxy}${thumbnail}`,
           })
         );
-      const defaultEnglishSub =
-        subtitles.find(
-          (sub) => sub.label.toLowerCase() === "english" && sub.default
-        ) || subtitles.find((sub) => sub.label.toLowerCase() === "english");
-      subtitles &&
-        subtitles.length > 0 &&
+      }
+
+      if (subtitles?.length > 0) {
+        const defaultEnglishSub =
+          subtitles.find((sub) => sub.label.toLowerCase() === "english" && sub.default) ||
+          subtitles.find((sub) => sub.label.toLowerCase() === "english");
+
         art.setting.add({
           name: "captions",
           icon: captionIcon,
           html: "Subtitle",
-          tooltip:
-            subtitles.find((sub) => sub.label.toLowerCase() === "english")
-              ?.label || "default",
+          tooltip: defaultEnglishSub?.label || "default",
           position: "right",
           selector: [
             {
               html: "Display",
               switch: true,
-              onSwitch: function (item) {
+              onSwitch: (item) => {
                 item.tooltip = item.switch ? "Hide" : "Show";
                 art.subtitle.show = !item.switch;
                 return !item.switch;
               },
             },
             ...subtitles.map((sub) => ({
-              default:
-                sub.label.toLowerCase() === "english" &&
-                sub === defaultEnglishSub,
+              default: sub.label.toLowerCase() === "english" && sub === defaultEnglishSub,
               html: sub.label,
               url: sub.file,
             })),
           ],
-          onSelect: function (item) {
+          onSelect: (item) => {
             art.subtitle.switch(item.url, { name: item.html });
             return item.html;
           },
         });
+      }
     });
+
     return () => {
       if (art && art.destroy) {
         art.destroy(false);
       }
-      const continueWatching =
-        JSON.parse(localStorage.getItem("continueWatching")) || [];
 
+      const continueWatching = JSON.parse(localStorage.getItem("continueWatching")) || [];
       const newEntry = {
         id: animeInfo?.id,
         data_id: animeInfo?.data_id,
@@ -504,23 +457,20 @@ export default function Player({
         poster: animeInfo?.poster,
         title: animeInfo?.title,
         japanese_title: animeInfo?.japanese_title,
+        leftAt: leftAtRef.current,
       };
-      if (!newEntry.data_id) return;
-      const existingIndex = continueWatching.findIndex(
-        (item) => item.data_id === newEntry.data_id
-      );
 
+      if (!newEntry.data_id) return;
+
+      const existingIndex = continueWatching.findIndex((item) => item.data_id === newEntry.data_id);
       if (existingIndex !== -1) {
         continueWatching[existingIndex] = newEntry;
       } else {
         continueWatching.push(newEntry);
       }
-      localStorage.setItem(
-        "continueWatching",
-        JSON.stringify(continueWatching)
-      );
+      localStorage.setItem("continueWatching", JSON.stringify(continueWatching));
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [streamUrl, subtitles, intro, outro]);
 
   return <div ref={artRef} className="w-full h-full"></div>;
