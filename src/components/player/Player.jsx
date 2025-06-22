@@ -468,7 +468,7 @@ export default function Player({
       if (art && art.destroy) {
         art.destroy(false);
       }
-
+      document.removeEventListener("keydown", handleKeydown);
       const continueWatching = JSON.parse(localStorage.getItem("continueWatching")) || [];
       const newEntry = {
         id: animeInfo?.id,
