@@ -365,7 +365,12 @@ export default function Player({
       },
       customType: { m3u8: playM3u8 },
     });
-
+    art.on("resize", () => {
+      art.subtitle.style({
+        fontSize:
+          (art.width > 500 ? art.width * 0.02 : art.width * 0.03) + "px",
+      });
+    });
     art.on("ready", () => {
       const continueWatchingList = JSON.parse(localStorage.getItem("continueWatching")) || [];
       const currentEntry = continueWatchingList.find((item) => item.episodeId === episodeId);
@@ -406,7 +411,24 @@ export default function Player({
           })
         );
       }
-
+      const $rewind = art.layers["rewind"];
+      const $forward = art.layers["forward"];
+      Artplayer.utils.isMobile &&
+        art.proxy($rewind, "dblclick", () => {
+          art.currentTime = Math.max(0, art.currentTime - 10);
+          art.layers["backwardIcon"].style.opacity = 1;
+          setTimeout(() => {
+            art.layers["backwardIcon"].style.opacity = 0;
+          }, 300);
+        });
+      Artplayer.utils.isMobile &&
+        art.proxy($forward, "dblclick", () => {
+          art.currentTime = Math.max(0, art.currentTime + 10);
+          art.layers["forwardIcon"].style.opacity = 1;
+          setTimeout(() => {
+            art.layers["forwardIcon"].style.opacity = 0;
+          }, 300);
+        });
       if (subtitles?.length > 0) {
         const defaultEnglishSub =
           subtitles.find((sub) => sub.label.toLowerCase() === "english" && sub.default) ||
