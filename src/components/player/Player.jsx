@@ -239,7 +239,6 @@ export default function Player({
       autoOrientation: true,
       fastForward: true,
       aspectRatio: true,
-      subtitleOffset: true,
       plugins: [
         artplayerPluginHlsControl({
           quality: {
