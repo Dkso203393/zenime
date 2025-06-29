@@ -124,22 +124,22 @@ export const useWatch = (animeId, initialEpisodeId) => {
             server.serverName === "HD-2" ||
             server.serverName === "HD-3"
         );
-        // if (filteredServers.some((s) => s.type === "sub")) {
-        //   filteredServers.unshift({
-        //     type: "sub",
-        //     data_id: "69696969",
-        //     server_id: "41",
-        //     serverName: "HD-4",
-        //   });
-        // }
-        // if (filteredServers.some((s) => s.type === "dub")) {
-        //   filteredServers.unshift({
-        //     type: "dub",
-        //     data_id: "96969696",
-        //     server_id: "42",
-        //     serverName: "HD-4",
-        //   });
-        // }
+        if (filteredServers.some((s) => s.type === "sub")) {
+          filteredServers.unshift({
+            type: "sub",
+            data_id: "69696969",
+            server_id: "41",
+            serverName: "HD-4",
+          });
+        }
+        if (filteredServers.some((s) => s.type === "dub")) {
+          filteredServers.unshift({
+            type: "dub",
+            data_id: "96969696",
+            server_id: "42",
+            serverName: "HD-4",
+          });
+        }
         const savedServerName = localStorage.getItem("server_name");
         const savedServerType = localStorage.getItem("server_type");
         let initialServer =
@@ -158,9 +158,9 @@ export const useWatch = (animeId, initialEpisodeId) => {
           data.find(
             (s) => s.serverName === "HD-3" && s.type === savedServerType
           ) ||
-          // data.find(
-          //   (s) => s.serverName === "HD-4" && s.type === savedServerType
-          // ) ||
+          data.find(
+            (s) => s.serverName === "HD-4" && s.type === savedServerType
+          ) ||
           filteredServers[0];
         setServers(filteredServers);
         setActiveServerType(initialServer?.type);
@@ -187,8 +187,8 @@ export const useWatch = (animeId, initialEpisodeId) => {
     )
       return;
     if (
-      activeServerName?.toLowerCase() === "hd-1" 
-        // activeServerName?.toLowerCase() === "hd-4") 
+      (activeServerName?.toLowerCase() === "hd-1" 
+        || activeServerName?.toLowerCase() === "hd-4") 
         &&
       !serverLoading
     ) {
