@@ -125,7 +125,7 @@ export const useWatch = (animeId, initialEpisodeId) => {
             server.serverName === "HD-3"
         );
         if (filteredServers.some((s) => s.type === "sub")) {
-          filteredServers.unshift({
+          filteredServers.push({
             type: "sub",
             data_id: "69696969",
             server_id: "41",
@@ -133,7 +133,7 @@ export const useWatch = (animeId, initialEpisodeId) => {
           });
         }
         if (filteredServers.some((s) => s.type === "dub")) {
-          filteredServers.unshift({
+          filteredServers.push({
             type: "dub",
             data_id: "96969696",
             server_id: "42",
