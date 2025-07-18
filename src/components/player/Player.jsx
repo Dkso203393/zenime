@@ -212,9 +212,9 @@ export default function Player({
     if (!streamUrl || !artRef.current) return;
     // const iframeUrl = streamInfo?.streamingLink?.iframe;
     const headers = {};
-    if (serverName.toLowerCase()=="hd-2") {
+    if (serverName.toLowerCase()=="hd-3") {
       headers.Referer = "https://megaplay.buzz";
-    } else if(serverName.toLowerCase()=="hd-3"){
+    } else if(serverName.toLowerCase()=="hd-2"){
       headers.Referer = "https://vidwish.live/";
     }
     const art = new Artplayer({
