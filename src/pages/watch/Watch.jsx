@@ -249,6 +249,7 @@ export default function Watch() {
                   subtitles={subtitles}
                   intro={intro}
                   outro={outro}
+                  serverName={activeServerName.toLowerCase()}
                   thumbnail={thumbnail}
                   autoSkipIntro={autoSkipIntro}
                   autoPlay={autoPlay}

@@ -50,6 +50,7 @@ export default function Player({
   thumbnail,
   intro,
   outro,
+  serverName,
   autoSkipIntro,
   autoPlay,
   autoNext,
@@ -209,13 +210,12 @@ export default function Player({
 
   useEffect(() => {
     if (!streamUrl || !artRef.current) return;
-    const iframeUrl = streamInfo?.streamingLink?.iframe;
+    // const iframeUrl = streamInfo?.streamingLink?.iframe;
     const headers = {};
-    if (iframeUrl) {
-      const url = new URL(iframeUrl);
-      headers.Referer = url.origin + "/";
-    } else {
-      headers.Referer = "https://megacloud.club/";
+    if (serverName.toLowerCase()=="hd-2") {
+      headers.Referer = "https://megaplay.buzz";
+    } else if(serverName.toLowerCase()=="hd-3"){
+      headers.Referer = "https://vidwish.live/";
     }
     const art = new Artplayer({
       url:
