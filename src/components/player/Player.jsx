@@ -210,13 +210,9 @@ export default function Player({
 
   useEffect(() => {
     if (!streamUrl || !artRef.current) return;
-    // const iframeUrl = streamInfo?.streamingLink?.iframe;
+    const iframeUrl = streamInfo?.streamingLink?.iframe;
     const headers = {};
-    if (serverName.toLowerCase()=="hd-3") {
-      headers.Referer = "https://megaplay.buzz";
-    } else if(serverName.toLowerCase()=="hd-2"){
-      headers.Referer = "https://vidwish.live/";
-    }
+    headers.referer=new URL(iframeUrl).origin+"/";
     const art = new Artplayer({
       url:
         m3u8proxy[Math.floor(Math.random() * m3u8proxy?.length)] +
