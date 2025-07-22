@@ -118,6 +118,8 @@ export const useWatch = (animeId, initialEpisodeId) => {
       setServerLoading(true);
       try {
         const data = await getServers(animeId, episodeId);
+        console.log(data);
+        
         const filteredServers = data?.filter(
           (server) =>
             server.serverName === "HD-1" ||
@@ -188,7 +190,7 @@ export const useWatch = (animeId, initialEpisodeId) => {
       return;
     if (
       (activeServerName?.toLowerCase() === "hd-1" 
-        || activeServerName?.toLowerCase() === "hd-4") 
+        || activeServerName?.toLowerCase() === "hd-2"|| activeServerName?.toLowerCase() === "hd-3"|| activeServerName?.toLowerCase() === "hd-4") 
         &&
       !serverLoading
     ) {
