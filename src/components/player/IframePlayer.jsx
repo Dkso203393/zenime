@@ -140,7 +140,7 @@ export default function IframePlayer({
         }`}
         onLoad={() => {
           setIframeLoaded(true);
-          setTimeout(() => setLoading(false), 200);
+          setTimeout(() => setLoading(false), 1000);
         }}
       ></iframe>
     </div>
